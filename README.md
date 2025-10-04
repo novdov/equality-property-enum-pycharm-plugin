@@ -10,6 +10,82 @@ When working with Python Enums that use `__getattr__` to dynamically generate `i
 - **Type Inference**: Recognizes dynamic properties as `bool` type
 - **Code Validation**: Warns about invalid property access with helpful suggestions
 
+## Motivation
+
+When working with Enums, you often need to compare the current value with specific enum members. The traditional approach requires repetitive equality checks:
+
+```python
+# Without EqualityPropertyEnum - repetitive and verbose
+class Status(StrEnum):
+    FINISHED = auto()
+    PENDING = auto()
+    IN_PROGRESS = auto()
+
+status = Status.FINISHED
+if status == Status.FINISHED:  # Repetitive!
+    print("Task is finished")
+```
+
+`EqualityPropertyEnum` solves this by automatically generating `is_*` properties for each enum member:
+
+```python
+# With EqualityPropertyEnum - clean and readable
+class Status(EqualityPropertyEnum):
+    FINISHED = auto()
+    PENDING = auto()
+    IN_PROGRESS = auto()
+
+status = Status.FINISHED
+if status.is_finished:  # Much cleaner!
+    print("Task is finished")
+```
+
+However, since these properties are generated dynamically via `__getattr__`, PyCharm cannot provide autocomplete or type hints for them. **This plugin bridges that gap**, giving you the best of both worlds: clean, DRY code with full IDE support.
+
+## EqualityPropertyEnum Implementation
+
+Here's the base class implementation that enables dynamic `is_*` properties:
+
+```python
+import enum
+
+class EqualityPropertyEnum(enum.StrEnum):
+    def __getattr__(self, name: str) -> bool:
+        prefix = "is_"
+
+        if name.startswith(prefix):
+            member_name = name.removeprefix(prefix).upper()
+
+            if member_name in self.__class__.__members__:
+                return self.name == member_name
+
+            available_properties = [f"is_{m.lower()}" for m in self.__class__.__members__]
+            raise AttributeError(
+                f"'{self.__class__.__name__}' has no member '{member_name}'. "
+                f"Available properties: {', '.join(available_properties)}"
+            )
+
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+```
+
+Any enum that inherits from `EqualityPropertyEnum` automatically gets `is_*` properties for all its members:
+
+```python
+class Status(EqualityPropertyEnum):
+    FINISHED = auto()
+    PENDING = auto()
+    IN_PROGRESS = auto()
+
+# All of these work automatically:
+status = Status.FINISHED
+print(status.is_finished)     # True
+print(status.is_pending)      # False
+print(status.is_in_progress)  # False
+
+# Error handling built-in:
+status.is_invalid  # AttributeError with helpful message
+```
+
 ## Features
 
 ### 1. Dynamic Property Autocomplete
