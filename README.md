@@ -1,0 +1,1 @@
+# equality-property-enum-pycharm-plugin
