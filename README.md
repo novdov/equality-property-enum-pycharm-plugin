@@ -169,12 +169,6 @@ The plugin detects classes that inherit from `EqualityPropertyEnum` and analyzes
 ./gradlew runIde
 ```
 
-### Run Tests
-
-```bash
-./gradlew test
-```
-
 ## Technical Stack
 
 - **Language**: Kotlin 2.2.20
