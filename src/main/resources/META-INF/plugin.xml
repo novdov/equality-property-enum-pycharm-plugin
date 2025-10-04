@@ -1,0 +1,28 @@
+<idea-plugin>
+    <id>com.novdov.equalityenum</id>
+    <name>EqualityPropertyEnum Support</name>
+    <vendor>novdov</vendor>
+
+    <description><![CDATA[
+    Provides IDE support for EqualityPropertyEnum - dynamic property autocomplete and type hints for Python Enum classes.
+    ]]></description>
+
+    <depends>com.intellij.modules.python</depends>
+
+    <extensions defaultExtensionNs="Pythonid">
+        <typeProvider implementation="com.novdov.equalityenum.EqualityPropertyEnumTypeProvider"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor
+            language="Python"
+            implementationClass="com.novdov.equalityenum.EqualityPropertyEnumCompletionContributor"/>
+        <localInspection
+            language="Python"
+            displayName="Invalid EqualityPropertyEnum property"
+            groupName="Python"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.novdov.equalityenum.InvalidEqualityPropertyAccessInspection"/>
+    </extensions>
+</idea-plugin>
